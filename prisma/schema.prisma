@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+model User {
+  id                 Int              @id @default(autoincrement())
+  username           String           @unique
+  name               String
+  password           String
+  email              String?
+  created_at         DateTime         @default(now())
+  private            Boolean
+  notifications      Int
+  notes              Note[]
+  folders            Folder[]
+  tabs               Tab[]
+  mantabs            ManTab[]
+  folderinvite      FolderInvite[]
+  manfolder         ManFolder[]
+}
+
+model Emailwithcode{
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  code         String
+}
+
+
+model Folder {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  title       String?
+  color       Int?
+  archive     Boolean?
+  default     Boolean
+  tags        FolderTags[]
+  tabs        Tab[]
+  folderinvite FolderInvite[]
+  created_at  DateTime @default(now())
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+
+model Note {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  title       String?
+  default     Boolean?
+  url         String?
+  content     String
+  created_at  DateTime @default(now())
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Tab {
+  id              Int              @id @default(autoincrement())
+  user_id         Int
+  title           String?
+  folder_id       Int
+  description     String?
+  url            String
+  favIconUrl     String
+  date           String
+  tabid          Int
+  type            Int
+  important       Boolean?
+  hashtag         TabTags[]
+  archive         Boolean?
+  created_at      DateTime @default(now())
+
+  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  folder            Folder     @relation(fields: [folder_id], references: [id], onDelete: Cascade)
+  
+
+  @@index([user_id])
+  @@index([folder_id])
+}
+
+
+model FolderInvite{
+  id              Int              @id @default(autoincrement())
+  folder_id      Int
+  user_id         Int
+  accepted        Boolean
+  important       Boolean?
+  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  folder          Folder   @relation(fields: [folder_id], references: [id], onDelete: Cascade)
+}
+
+
+model TabTags {
+  id          Int      @id @default(autoincrement())
+  project_id  Int
+  tag         String
+  project     Tab  @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@index([project_id])
+}
+
+model FolderTags {
+  id          Int      @id @default(autoincrement())
+  folder_id   Int
+  tag         String
+  project     Folder  @relation(fields: [folder_id], references: [id], onDelete: Cascade)
+
+  @@index([folder_id])
+}
+
+
+model ManTab {
+  id              Int              @id @default(autoincrement())
+  user_id         Int
+  title           String?
+  folder_id       Int
+  description     String?
+  url            String
+  favIconUrl     String
+  date           String
+  tabid          Int
+  type            Int
+  important       Boolean?
+  
+  archive         Boolean?
+  created_at      DateTime @default(now())
+
+  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  folder          ManFolder     @relation(fields: [folder_id], references: [id], onDelete: Cascade)
+  
+
+  @@index([user_id])
+  @@index([folder_id])
+}
+
+
+
+model ManFolder {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  title       String?
+  color       Int?
+  archive     Boolean?
+  default     Boolean
+  tabs        ManTab[]
+  created_at  DateTime @default(now())
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+
+
+
+
